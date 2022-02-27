@@ -1,7 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Contract, ethers } from "ethers";
-import { createTheme, ThemeProvider } from "@material-ui/core";
-import { SnackbarProvider } from "notistack";
+import { ethers } from "ethers";
 import ConnectWalletPage from "./Components/connectWalletPage";
 import {
   getAccount,
@@ -13,24 +11,9 @@ import {
 import COINS from "./constants/coins";
 import * as chains from "./constants/chains";
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#ff0000",
-      contrastText: "#ffffff",
-    },
-    secondary: {
-      main: "#9e9e9e",
-      contrastText: "#ffffff",
-    },
-  },
-});
-
-const autoReconnectDelay = 5000;
-
 const Web3Provider = (props) => {
   const [isConnected, setConnected] = useState(true);
-  let network = Object.create( {} )
+  let network = Object.create({})
   network.provider = useRef(null);
   network.signer = useRef(null);
   network.account = useRef(null);
@@ -91,7 +74,7 @@ const Web3Provider = (props) => {
       try {
         // Check the account has not changed
         const account = await getAccount();
-        if (account != network.account) {
+        if (account !== network.account) {
           await setupConnection();
         }
         // const chainID = await getNetwork(network.provider);
@@ -106,20 +89,24 @@ const Web3Provider = (props) => {
     }, 2000);
   }
 
-  useEffect(async () => {
-    // Initial setup
-    console.log("Initial hook");
-    await setupConnection();
-    console.log("network: ", network);
+  useEffect(() => {
+    const asyncWork = async () => {
+      // Initial setup
+      console.log("Initial hook");
+      await setupConnection();
+      console.log("network: ", network);
 
-    // Start background listener
-    if (backgroundListener.current != null) {
-      clearInterval(backgroundListener.current);
+      // Start background listener
+      if (backgroundListener.current != null) {
+        clearInterval(backgroundListener.current);
+      }
+      const listener = createListener();
+      backgroundListener.current = listener;
+      return () => clearInterval(backgroundListener.current);
     }
-    const listener = createListener();
-    backgroundListener.current = listener;
-    return () => clearInterval(backgroundListener.current);
-  }, []);
+    asyncWork()
+    // eslint-disable-next-line
+  }, [network]);
 
   const renderNotConnected = () => {
     console.log("Rendering");

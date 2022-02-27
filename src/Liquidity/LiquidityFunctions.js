@@ -244,7 +244,7 @@ async function quoteMintLiquidity(
   const reserveA = _reserveA * (10 ** token1Decimals);
   const reserveB = _reserveB * (10 ** token2Decimals);
 
-  if (totalSupply == 0) {
+  if (!totalSupply || totalSupply === 0) {
     return Math.sqrt(((valueA * valueB) - MINIMUM_LIQUIDITY)) * 10 ** (-18);
   };
 

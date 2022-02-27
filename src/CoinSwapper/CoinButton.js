@@ -24,7 +24,7 @@ CoinButton.propTypes = {
 };
 
 export default function CoinButton(props) {
-  const { coinName, coinAbbr, onClick, ...other } = props;
+  const { coinName, coinAbbr, onClick } = props;
   const classes = useStyles();
 
   return (

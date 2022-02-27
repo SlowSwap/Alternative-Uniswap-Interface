@@ -1,6 +1,5 @@
 import React from "react";
 import "./App.css";
-import { ethers } from "ethers";
 import Web3Provider from "./network";
 import NarBar from "./NavBar/NavBar";
 import CoinSwapper from "./CoinSwapper/CoinSwapper";
@@ -12,8 +11,8 @@ import { createTheme, ThemeProvider } from "@material-ui/core";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#ff0000",
-      contrastText: "#ffffff",
+      main: "#EDEDED",
+      contrastText: "#ff0000",
     },
     secondary: {
       main: "#9e9e9e",
@@ -31,11 +30,11 @@ const App = () => {
             render={(network) => (
               <div>
                 <NarBar />
-                <Route exact path="/Alternative-Uniswap-Interface/">
+                <Route exact path="/">
                   <CoinSwapper network={network} />
                 </Route>
 
-                <Route exact path="/Alternative-Uniswap-Interface/liquidity">
+                <Route exact path="/liquidity">
                   <Liquidity network={network} />
                 </Route>
               </div>

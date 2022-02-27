@@ -58,7 +58,7 @@ function LiquidityDeployer(props) {
   // Stores a record of whether their respective dialog window is open
   const [dialog1Open, setDialog1Open] = React.useState(false);
   const [dialog2Open, setDialog2Open] = React.useState(false);
-  const [wrongNetworkOpen, setwrongNetworkOpen] = React.useState(false);
+  const [wrongNetworkOpen] = React.useState(false);
 
   // Stores data about their respective coin
   const [coin1, setCoin1] = React.useState({
@@ -133,9 +133,9 @@ function LiquidityDeployer(props) {
     return (
       coin1.address &&
       coin2.address &&
-      parsedInput1 !== NaN &&
+      !isNaN(parsedInput1) &&
       0 < parsedInput1 &&
-      parsedInput2 !== NaN &&
+      !isNaN(parsedInput2) &&
       0 < parsedInput2 &&
       parsedInput1 <= coin1.balance &&
       parsedInput2 <= coin2.balance
@@ -195,7 +195,7 @@ function LiquidityDeployer(props) {
         props.network.signer,
         props.network.weth.address,
         props.network.coins
-        ).then((data) => {
+      ).then((data) => {
         setCoin1({
           address: address,
           symbol: data.symbol,
@@ -223,7 +223,7 @@ function LiquidityDeployer(props) {
         props.network.signer,
         props.network.weth.address,
         props.network.coins
-        ).then((data) => {
+      ).then((data) => {
         setCoin2({
           address: address,
           symbol: data.symbol,
@@ -248,7 +248,7 @@ function LiquidityDeployer(props) {
         props.network.factory,
         props.network.signer,
         props.network.account
-        ).then(
+      ).then(
         (data) => {
           setReserves([data[0], data[1]]);
           setLiquidityTokens(data[2]);
@@ -278,6 +278,7 @@ function LiquidityDeployer(props) {
         setLiquidityOut([data[0], data[1], data[2]]);
       });
     }
+    // eslint-disable-next-line
   }, [coin1.address, coin2.address, field1Value, field2Value, props.network.factory, props.network.signer]);
 
   // This hook creates a timeout that will run every ~10 seconds, it's role is to check if the user's balance has
@@ -299,7 +300,7 @@ function LiquidityDeployer(props) {
         });
       }
 
-      if (coin1.address && props.network.account &&!wrongNetworkOpen) {
+      if (coin1.address && props.network.account && !wrongNetworkOpen) {
         getBalanceAndSymbol(
           props.network.account,
           coin1.address,
@@ -307,7 +308,7 @@ function LiquidityDeployer(props) {
           props.network.signer,
           props.network.weth.address,
           props.network.coins
-          ).then(
+        ).then(
           (data) => {
             setCoin1({
               ...coin1,
@@ -316,7 +317,7 @@ function LiquidityDeployer(props) {
           }
         );
       }
-      if (coin2.address && props.network.account &&!wrongNetworkOpen) {
+      if (coin2.address && props.network.account && !wrongNetworkOpen) {
         getBalanceAndSymbol(
           props.network.account,
           coin2.address,
@@ -324,7 +325,7 @@ function LiquidityDeployer(props) {
           props.network.signer,
           props.network.weth.address,
           props.network.coins
-          ).then(
+        ).then(
           (data) => {
             setCoin2({
               ...coin2,

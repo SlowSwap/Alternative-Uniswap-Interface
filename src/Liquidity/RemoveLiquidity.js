@@ -59,7 +59,7 @@ function LiquidityRemover(props) {
   // Stores a record of whether their respective dialog window is open
   const [dialog1Open, setDialog1Open] = React.useState(false);
   const [dialog2Open, setDialog2Open] = React.useState(false);
-  const [wrongNetworkOpen, setwrongNetworkOpen] = React.useState(false);
+  const [wrongNetworkOpen] = React.useState(false);
 
 
   // Stores data about their respective coin
@@ -125,7 +125,7 @@ function LiquidityRemover(props) {
     return (
       coin1.address &&
       coin2.address &&
-      parsedInput !== NaN &&
+      !isNaN(parsedInput) &&
       0 < parsedInput &&
       parsedInput <= liquidityTokens
     );
@@ -181,7 +181,7 @@ function LiquidityRemover(props) {
         props.network.signer,
         props.network.weth.address,
         props.network.coins
-        ).then((data) => {
+      ).then((data) => {
         setCoin1({
           address: address,
           symbol: data.symbol,
@@ -209,7 +209,7 @@ function LiquidityRemover(props) {
         props.network.signer,
         props.network.weth.address,
         props.network.coins
-        ).then((data) => {
+      ).then((data) => {
         setCoin2({
           address: address,
           symbol: data.symbol,
@@ -234,12 +234,13 @@ function LiquidityRemover(props) {
         props.network.factory,
         props.network.signer,
         props.network.account).then(
-        (data) => {
-          setReserves([data[0], data[1]]);
-          setLiquidityTokens(data[2]);
-        }
-      );
+          (data) => {
+            setReserves([data[0], data[1]]);
+            setLiquidityTokens(data[2]);
+          }
+        );
     }
+    // eslint-disable-next-line
   }, [coin1.address, coin2.address, props.network.account, props.network.factory, props.network.signer]);
 
   // This hook is called when either of the state variables `field1Value`, `coin1.address` or `coin2.address` change.
@@ -257,6 +258,7 @@ function LiquidityRemover(props) {
         setTokensOut(data);
       });
     }
+    // eslint-disable-next-line
   }, [coin1.address, coin2.address, field1Value, props.network.factory, props.network.signer]);
 
   useEffect(() => {
@@ -279,14 +281,14 @@ function LiquidityRemover(props) {
         });
       }
 
-      if (coin1.address && props.network.account &&!wrongNetworkOpen) {
+      if (coin1.address && props.network.account && !wrongNetworkOpen) {
         getBalanceAndSymbol(
           props.network.account,
           coin1.address, props.network.provider,
           props.network.signer,
           props.network.weth.address,
           props.network.coins
-          ).then(
+        ).then(
           (data) => {
             setCoin1({
               ...coin1,
@@ -295,14 +297,14 @@ function LiquidityRemover(props) {
           }
         );
       }
-      if (coin2.address && props.network.account &&!wrongNetworkOpen) {
+      if (coin2.address && props.network.account && !wrongNetworkOpen) {
         getBalanceAndSymbol(props.network.account,
           coin2.address,
           props.network.provider,
           props.network.signer,
           props.network.weth.address,
           props.network.coins
-          ).then(
+        ).then(
           (data) => {
             setCoin2({
               ...coin2,

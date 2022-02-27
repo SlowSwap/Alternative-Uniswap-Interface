@@ -11,15 +11,8 @@ import SwapVerticalCircleIcon from "@material-ui/icons/SwapVerticalCircle";
 import { useSnackbar } from "notistack";
 import LoopIcon from "@material-ui/icons/Loop";
 import {
-  getAccount,
-  getFactory,
-  getProvider,
-  getRouter,
-  getSigner,
-  getNetwork,
   getAmountOut,
   getBalanceAndSymbol,
-  getWeth,
   swapTokens,
   getReserves,
 } from "../ethereumFunctions";

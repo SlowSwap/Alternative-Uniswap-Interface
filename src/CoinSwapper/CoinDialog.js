@@ -101,7 +101,7 @@ export default function CoinDialog(props) {
   // user closes the dialog without selecting anything), or will be a string containing the address of a coin.
 
   const classes = useStyles();
-  const { onClose, open, coins, signer, ...others } = props;
+  const { onClose, open, coins, signer } = props;
 
   const [address, setAddress] = React.useState("");
   const [error, setError] = React.useState("");
