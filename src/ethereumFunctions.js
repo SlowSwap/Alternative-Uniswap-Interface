@@ -2,6 +2,9 @@ import { Contract, ethers } from "ethers";
 import * as chains from "./constants/chains";
 import COINS from "./constants/coins";
 
+import * as ethjs from 'ethereumjs-util'
+import { generateSeed, generateX, generateChallenge, generateProof, evaluateVdf, isValidVdf } from '@slowswap/vdf'
+
 const ROUTER = require("./build/UniswapV2Router02.json");
 const ERC20 = require("./build/ERC20.json");
 const FACTORY = require("./build/IUniswapV2Factory.json");
@@ -26,7 +29,7 @@ export function getRouter(address, signer) {
 
 export async function checkNetwork(provider) {
   const chainId = getNetwork(provider);
-  if (chains.networks.includes(chainId)){
+  if (chains.networks.includes(chainId)) {
     return true
   }
   return false;
@@ -61,12 +64,12 @@ export function doesTokenExist(address, signer) {
 
 export async function getDecimals(token) {
   const decimals = await token.decimals().then((result) => {
-      return result;
-    }).catch((error) => {
-      console.log('No tokenDecimals function for this token, set to 0');
-      return 0;
-    });
-    return decimals;
+    return result;
+  }).catch((error) => {
+    console.log('No tokenDecimals function for this token, set to 0');
+    return 0;
+  });
+  return decimals;
 }
 
 // This function returns an object with 2 fields: `balance` which container's the account's balance in the particular token,
@@ -98,15 +101,51 @@ export async function getBalanceAndSymbol(
       const symbol = await token.symbol();
 
       return {
-        balance: balanceRaw*10**(-tokenDecimals),
+        balance: balanceRaw * 10 ** (-tokenDecimals),
         symbol: symbol,
       };
     }
   } catch (error) {
-    console.log ('The getBalanceAndSymbol function had an error!');
-    console.log (error)
+    console.log('The getBalanceAndSymbol function had an error!');
+    console.log(error)
     return false;
   }
+}
+
+
+function numberToBuffer(n) {
+  return ethjs.toBuffer(new ethjs.BN(n))
+}
+
+async function generateVdf(opts
+  //   {
+  //   n: BigNumber
+  //   t: number
+  //   origin: string
+  //   path: string[]
+  //   knownQtyIn: BigNumber
+  //   knownQtyOut: BigNumber
+  //   blockHash: string
+  //   blockNumber: number
+  // }
+) {
+
+  const seed = generateSeed(opts.origin, opts.path, opts.knownQtyIn, opts.knownQtyOut)
+  const x = generateX(opts.n, seed, opts.blockHash)
+
+  const y = evaluateVdf(x, opts.n, opts.t)
+
+  const c = generateChallenge({ x, y, n: opts.n, t: opts.t })
+
+  const pi = generateProof(x, c, opts.n, opts.t)
+  const vdfResult = ethjs.bufferToHex(
+    Buffer.concat([
+      ethjs.setLengthLeft(numberToBuffer(pi), 32),
+      ethjs.setLengthLeft(numberToBuffer(y), 32),
+      ethjs.setLengthLeft(numberToBuffer(opts.blockNumber), 32)
+    ])
+  )
+  return vdfResult
 }
 
 // This function swaps two particular tokens / AUT, it can handle switching from AUT to ERC20 token, ERC20 token to AUT, and ERC20 token to ERC20 token.
@@ -132,15 +171,47 @@ export async function swapTokens(
 
   const token1 = new Contract(address1, ERC20.abi, signer);
   const tokenDecimals = await getDecimals(token1);
-  
+
   const amountIn = ethers.utils.parseUnits(amount, tokenDecimals);
   const amountOut = await routerContract.callStatic.getAmountsOut(
     amountIn,
     tokens
   );
 
-  await token1.approve(routerContract.address, amountIn);
+  // TODO - check and only fire the approval if it is needed
+  // await token1.approve(routerContract.address, amountIn);
+
   const wethAddress = await routerContract.WETH();
+
+  const [N, T] = await Promise.all([
+    routerContract.N(),
+    routerContract.T()
+  ])
+  const origin = accountAddress
+  let knownQtyIn = amountIn.toString()
+  let knownQtyOut = '0' // this UI only allows known quantity in, so out will always be 0
+
+  // TODO - do this better, make it work for non-direct paths
+  const path = tokens
+
+  let blockNumber = await routerContract.provider.getBlockNumber()
+  let block = await routerContract.provider.getBlock(blockNumber)
+  let blockHash = block.hash
+
+  const proof = await generateVdf({
+    n: N,
+    t: T,
+    blockHash,
+    blockNumber,
+    knownQtyIn,
+    knownQtyOut,
+    origin,
+    path
+  })
+
+  // this does not work for some reason, it throws "Cannot convert NaN to BigInt"
+  // console.log("isValidVdf: ", isValidVdf({ n: N, t: T, origin, path, knownQtyIn, knownQtyOut, blockHash, proof }));
+
 
   if (address1 === wethAddress) {
     // Eth -> Token
@@ -149,6 +220,7 @@ export async function swapTokens(
       tokens,
       accountAddress,
       deadline,
+      proof,
       { value: amountIn }
     );
   } else if (address2 === wethAddress) {
@@ -158,7 +230,8 @@ export async function swapTokens(
       amountOut[1],
       tokens,
       accountAddress,
-      deadline
+      deadline,
+      proof
     );
   } else {
     await routerContract.swapExactTokensForTokens(
@@ -166,7 +239,8 @@ export async function swapTokens(
       amountOut[1],
       tokens,
       accountAddress,
-      deadline
+      deadline,
+      proof
     );
   }
 }
@@ -194,7 +268,7 @@ export async function getAmountOut(
       ethers.utils.parseUnits(String(amountIn), token1Decimals),
       [address1, address2]
     );
-    const amount_out = values_out[1]*10**(-token2Decimals);
+    const amount_out = values_out[1] * 10 ** (-token2Decimals);
     console.log('amount out: ', amount_out)
     return Number(amount_out);
   } catch {
@@ -222,15 +296,15 @@ export async function fetchReserves(address1, address2, pair, signer) {
     const reservesRaw = await pair.getReserves();
 
     // Put the results in the right order
-    const results =  [
+    const results = [
       (await pair.token0()) === address1 ? reservesRaw[0] : reservesRaw[1],
       (await pair.token1()) === address2 ? reservesRaw[1] : reservesRaw[0],
     ];
 
     // Scale each to the right decimal place
     return [
-      (results[0]*10**(-coin1Decimals)),
-      (results[1]*10**(-coin2Decimals))
+      (results[0] * 10 ** (-coin1Decimals)),
+      (results[1] * 10 ** (-coin2Decimals))
     ]
   } catch (err) {
     console.log("error!");
@@ -255,15 +329,15 @@ export async function getReserves(
   try {
     const pairAddress = await factory.getPair(address1, address2);
     const pair = new Contract(pairAddress, PAIR.abi, signer);
-  
-    if (pairAddress !== '0x0000000000000000000000000000000000000000'){
-  
+
+    if (pairAddress !== '0x0000000000000000000000000000000000000000') {
+
       const reservesRaw = await fetchReserves(address1, address2, pair, signer);
       const liquidityTokens_BN = await pair.balanceOf(accountAddress);
       const liquidityTokens = Number(
         ethers.utils.formatEther(liquidityTokens_BN)
       );
-    
+
       return [
         reservesRaw[0].toPrecision(6),
         reservesRaw[1].toPrecision(6),
@@ -271,9 +345,9 @@ export async function getReserves(
       ];
     } else {
       console.log("no reserves yet");
-      return [0,0,0];
+      return [0, 0, 0];
     }
-  }catch (err) {
+  } catch (err) {
     console.log("error!");
     console.log(err);
     return [0, 0, 0];

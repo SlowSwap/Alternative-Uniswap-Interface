@@ -74,7 +74,7 @@ const PARASTATECoins = [
     abbr: "TB",
     address: "0x4489D87C8440B19f11d63FA2246f943F492F3F5F",
   },
-  
+
   {
     name: "Token C",
     abbr: "TC",
@@ -103,7 +103,7 @@ const GANACHECoins = [
     abbr: "TB",
     address: "0x30988e63329713c3f3FeA1ca1B94D4Abb02F78C5",
   },
-  
+
   {
     name: "Token C",
     abbr: "TC",
@@ -150,6 +150,23 @@ const ROPSTENCoins = [
     abbr: "USDT",
     address: "0x6ee856ae55b6e1a249f04cd3b947141bc146273c",
   },
+  {
+    name: "Token 0",
+    abbr: "TEST0",
+    address: "0xc34375f07a56fb8887600E4cd04d8C245a4D6bc2",
+  },
+  {
+    name: "Token 1",
+    abbr: "TEST1",
+    address: "0xB79C345353eCc0edC1B60cf474CE552D7B6F34F2",
+  },
+
+  {
+    name: "Token 2",
+    abbr: "TEST2",
+    address: "0x9d664E019a5Fb2C9bc8db7191D25d2B0E9C8608C",
+  },
+
 ]
 
 const KOVANCoins = [
@@ -205,6 +222,43 @@ const GÖRLICoins = [
     address: "0x509ee0d083ddf8ac028f2a56731412edd63223b9",
   },
 ]
+const POLYGONCoins = [
+  {
+    name: "Matic Token",
+    abbr: "MATIC",
+    address: "", // Weth address is fetched from the router
+  },
+  // {
+  //   name: "Matic",
+  //   abbr: "MATIC",
+  //   address: "0x0000000000000000000000000000000000001010",
+  // },
+  {
+    name: "Dai",
+    abbr: "DAI",
+    address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+  },
+  {
+    name: "Spork DAO (POS)",
+    abbr: "SPORK",
+    address: "0x9CA6a77C8B38159fd2dA9Bd25bc3E259C33F5E39",
+  },
+  {
+    name: "Token 0",
+    abbr: "TEST0",
+    address: "0xc50C5CCD4a3aeaE1371666366079151A20f18e9c",
+  },
+  {
+    name: "Token 1",
+    abbr: "TEST1",
+    address: "0xb9d8E4e9aA4537E1e6057d8f844Fa3a2900d486A",
+  },
+  {
+    name: "Token 2",
+    abbr: "TEST2",
+    address: "0xD7cF6D417a760B40794e5F4d0fb0C9f1Ca07Df6d",
+  },
+]
 
 const COINS = new Map();
 COINS.set(chains.ChainId.MAINNET, MAINNETCoins);
@@ -215,5 +269,6 @@ COINS.set(chains.ChainId.KOVAN, KOVANCoins);
 COINS.set(chains.ChainId.AUTONITY, AUTONITYCoins);
 COINS.set(chains.ChainId.DEVNET, DEVNETCoins);
 COINS.set(chains.ChainId.PARASTATE, PARASTATECoins);
-COINS.set(chains.ChainId.GANCHE, GANACHECoins)
+COINS.set(chains.ChainId.GANCHE, GANACHECoins);
+COINS.set(chains.ChainId.POLYGON, POLYGONCoins);
 export default COINS

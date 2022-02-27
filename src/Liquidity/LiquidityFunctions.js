@@ -123,9 +123,9 @@ export async function removeLiquidity(
   const token1Decimals = await getDecimals(token1);
   const token2Decimals = await getDecimals(token2);
 
-  const Getliquidity = (liquidity_tokens)=>{
-    if (liquidity_tokens < 0.001){
-      return ethers.BigNumber.from(liquidity_tokens*10**18);
+  const Getliquidity = (liquidity_tokens) => {
+    if (liquidity_tokens < 0.001) {
+      return ethers.BigNumber.from(liquidity_tokens * 10 ** 18);
     }
     return ethers.utils.parseUnits(String(liquidity_tokens), 18);
   }
@@ -209,24 +209,24 @@ async function quoteMintLiquidity(
   amountB,
   factory,
   signer
-){
+) {
   const MINIMUM_LIQUIDITY = 1000;
   let _reserveA = 0;
   let _reserveB = 0;
   let totalSupply = 0;
   [_reserveA, _reserveB, totalSupply] = await factory.getPair(address1, address2).then(async (pairAddress) => {
-    if (pairAddress !== '0x0000000000000000000000000000000000000000'){
+    if (pairAddress !== '0x0000000000000000000000000000000000000000') {
       const pair = new Contract(pairAddress, PAIR.abi, signer);
 
       const reservesRaw = await fetchReserves(address1, address2, pair, signer); // Returns the reserves already formated as ethers
       const reserveA = reservesRaw[0];
       const reserveB = reservesRaw[1];
-    
+
       const _totalSupply = await pair.totalSupply();
       const totalSupply = Number(ethers.utils.formatEther(_totalSupply));
       return [reserveA, reserveB, totalSupply]
     } else {
-      return [0,0,0]
+      return [0, 0, 0]
     }
   });
 
@@ -238,18 +238,18 @@ async function quoteMintLiquidity(
   const token1Decimals = await getDecimals(token1);
   const token2Decimals = await getDecimals(token2);
 
-  const valueA = amountA*(10**token1Decimals);
-  const valueB = amountB*(10**token2Decimals);
+  const valueA = amountA * (10 ** token1Decimals);
+  const valueB = amountB * (10 ** token2Decimals);
 
-  const reserveA = _reserveA*(10**token1Decimals);
-  const reserveB = _reserveB*(10**token2Decimals);
+  const reserveA = _reserveA * (10 ** token1Decimals);
+  const reserveB = _reserveB * (10 ** token2Decimals);
 
-  if (totalSupply == 0){
-    return Math.sqrt(((valueA * valueB)-MINIMUM_LIQUIDITY))*10**(-18);
+  if (totalSupply == 0) {
+    return Math.sqrt(((valueA * valueB) - MINIMUM_LIQUIDITY)) * 10 ** (-18);
   };
-  
+
   return (
-    Math.min(valueA*totalSupply/reserveA, valueB*totalSupply/reserveB)
+    Math.min(valueA * totalSupply / reserveA, valueB * totalSupply / reserveB)
   );
 };
 
