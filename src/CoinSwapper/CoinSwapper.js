@@ -24,6 +24,7 @@ import WrongNetwork from "../Components/wrongNetwork";
 import { Contract, ethers } from "ethers";
 import ProgressBar from '@ramonak/react-progress-bar'
 import crypto from 'crypto'
+import TestToken from "../Components/TestTokens";
 
 const worker = new Worker("../workers/vdf.worker.js", { type: "module" });
 
@@ -57,7 +58,8 @@ const styles = (theme) => ({
     textAlign: "center",
   },
   footer: {
-    marginTop: "285px",
+    width: "100%",
+    marginTop: 20
   },
 });
 
@@ -475,19 +477,15 @@ function CoinSwapper(props) {
         </Paper>
       </Container>
 
-      {/* TODO - if on a testnet, show buttons to mint test tokens  */}
-      {/* <Grid
+      <Grid
         container
         className={classes.footer}
         direction="row"
         justifyContent="center"
         alignItems="flex-end"
       >
-        <p>
-          Alternative Uniswap Interface | Get AUT for use in the bakerloo testnet{" "}
-          <a href="https://faucet.bakerloo.autonity.network/">here</a>
-        </p>
-      </Grid> */}
+        <TestToken network={props.network} />
+      </Grid>
     </div>
   );
 }
