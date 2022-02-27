@@ -1,9 +1,5 @@
 import { Contract, ethers } from "ethers";
 import * as chains from "./constants/chains";
-import COINS from "./constants/coins";
-
-import * as ethjs from 'ethereumjs-util'
-import { generateSeed, generateX, generateChallenge, generateProof, evaluateVdf, isValidVdf } from '@slowswap/vdf'
 
 const ROUTER = require("./build/UniswapV2Router02.json");
 const ERC20 = require("./build/ERC20.json");
@@ -112,42 +108,6 @@ export async function getBalanceAndSymbol(
   }
 }
 
-
-function numberToBuffer(n) {
-  return ethjs.toBuffer(new ethjs.BN(n))
-}
-
-async function generateVdf(opts
-  //   {
-  //   n: BigNumber
-  //   t: number
-  //   origin: string
-  //   path: string[]
-  //   knownQtyIn: BigNumber
-  //   knownQtyOut: BigNumber
-  //   blockHash: string
-  //   blockNumber: number
-  // }
-) {
-
-  const seed = generateSeed(opts.origin, opts.path, opts.knownQtyIn, opts.knownQtyOut)
-  const x = generateX(opts.n, seed, opts.blockHash)
-
-  const y = evaluateVdf(x, opts.n, opts.t)
-
-  const c = generateChallenge({ x, y, n: opts.n, t: opts.t })
-
-  const pi = generateProof(x, c, opts.n, opts.t)
-  const vdfResult = ethjs.bufferToHex(
-    Buffer.concat([
-      ethjs.setLengthLeft(numberToBuffer(pi), 32),
-      ethjs.setLengthLeft(numberToBuffer(y), 32),
-      ethjs.setLengthLeft(numberToBuffer(opts.blockNumber), 32)
-    ])
-  )
-  return vdfResult
-}
-
 // This function swaps two particular tokens / AUT, it can handle switching from AUT to ERC20 token, ERC20 token to AUT, and ERC20 token to ERC20 token.
 // No error handling is done, so any issues can be caught with the use of .catch()
 // To work correctly, there needs to be 7 arguments:
@@ -163,7 +123,8 @@ export async function swapTokens(
   amount,
   routerContract,
   accountAddress,
-  signer
+  signer,
+  proof
 ) {
   const tokens = [address1, address2];
   const time = Math.floor(Date.now() / 1000) + 200000;
@@ -182,36 +143,6 @@ export async function swapTokens(
   // await token1.approve(routerContract.address, amountIn);
 
   const wethAddress = await routerContract.WETH();
-
-  const [N, T] = await Promise.all([
-    routerContract.N(),
-    routerContract.T()
-  ])
-  const origin = accountAddress
-  let knownQtyIn = amountIn.toString()
-  let knownQtyOut = '0' // this UI only allows known quantity in, so out will always be 0
-
-  // TODO - do this better, make it work for non-direct paths
-  const path = tokens
-
-  let blockNumber = await routerContract.provider.getBlockNumber()
-  let block = await routerContract.provider.getBlock(blockNumber)
-  let blockHash = block.hash
-
-  const proof = await generateVdf({
-    n: N,
-    t: T,
-    blockHash,
-    blockNumber,
-    knownQtyIn,
-    knownQtyOut,
-    origin,
-    path
-  })
-
-  // this does not work for some reason, it throws "Cannot convert NaN to BigInt"
-  // console.log("isValidVdf: ", isValidVdf({ n: N, t: T, origin, path, knownQtyIn, knownQtyOut, blockHash, proof }));
-
 
   if (address1 === wethAddress) {
     // Eth -> Token

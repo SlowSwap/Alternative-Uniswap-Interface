@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Grid,
@@ -15,13 +15,19 @@ import {
   getBalanceAndSymbol,
   swapTokens,
   getReserves,
+  getDecimals,
 } from "../ethereumFunctions";
 import CoinField from "./CoinField";
 import CoinDialog from "./CoinDialog";
 import LoadingButton from "../Components/LoadingButton";
 import WrongNetwork from "../Components/wrongNetwork";
-import COINS from "../constants/coins";
-import * as chains from "../constants/chains";
+import { Contract, ethers } from "ethers";
+import ProgressBar from '@ramonak/react-progress-bar'
+import crypto from 'crypto'
+
+const worker = new Worker("../workers/vdf.worker.js", { type: "module" });
+
+const ERC20 = require("../build/ERC20.json");
 
 const styles = (theme) => ({
   paperContainer: {
@@ -64,7 +70,8 @@ function CoinSwapper(props) {
   // Stores a record of whether their respective dialog window is open
   const [dialog1Open, setDialog1Open] = React.useState(false);
   const [dialog2Open, setDialog2Open] = React.useState(false);
-  const [wrongNetworkOpen, setwrongNetworkOpen] = React.useState(false);
+  const [wrongNetworkOpen] = React.useState(false);
+  const [progressBarValue, setProgressBarValue] = useState(0)
 
   // Stores data about their respective coin
   const [coin1, setCoin1] = React.useState({
@@ -178,32 +185,85 @@ function CoinSwapper(props) {
   };
 
   // Calls the swapTokens Ethereum function to make the swap, then resets nessicary state variables
-  const swap = () => {
-    console.log("Attempting to swap tokens...");
+  const swap = async () => {
     setLoading(true);
 
-    swapTokens(
-      coin1.address,
-      coin2.address,
-      field1Value,
-      props.network.router,
-      props.network.account,
-      props.network.signer
-    )
-      .then(() => {
-        setLoading(false);
+    const amount = field1Value
+    const origin = props.network.account
 
-        // If the transaction was successful, we clear to input to make sure the user doesn't accidental redo the transfer
-        setField1Value("");
-        enqueueSnackbar("Transaction Successful", { variant: "success" });
-      })
-      .catch((e) => {
-        setLoading(false);
-        enqueueSnackbar("Transaction Failed (" + e.message + ")", {
-          variant: "error",
-          autoHideDuration: 10000,
-        });
-      });
+    const token1 = new Contract(coin1.address, ERC20.abi, props.network.signer);
+    const tokenDecimals = await getDecimals(token1);
+    const amountIn = ethers.utils.parseUnits(amount, tokenDecimals);
+
+    let knownQtyIn = amountIn.toString()
+    let knownQtyOut = '0' // this UI only allows known quantity in, so out will always be 0
+
+    // TODO - do this better, make it work for non-direct paths
+    const path = [
+      coin1.address,
+      coin2.address
+    ]
+
+    const [N, T] = await Promise.all([
+      props.network.router.N(),
+      props.network.router.T()
+    ])
+
+
+    const id = crypto.randomBytes(32).toString('hex')
+
+    const blockNumber = await props.network.provider.getBlockNumber()
+    console.log('blockNumber', blockNumber)
+    const block = await props.network.provider.getBlock(blockNumber)
+    const blockHash = block.hash
+
+
+    worker.onmessage = ev => {
+
+      const output = ev.data
+      if (output.id !== id) {
+        return
+      }
+
+      setProgressBarValue(Math.round(output.progress * 100))
+      if (output.proof) {
+        console.log("got proof", output.proof)
+        console.log("Attempting to swap tokens...");
+        swapTokens(
+          coin1.address,
+          coin2.address,
+          field1Value,
+          props.network.router,
+          props.network.account,
+          props.network.signer,
+          output.proof
+        )
+          .then(() => {
+            setLoading(false);
+            // If the transaction was successful, we clear to input to make sure the user doesn't accidental redo the transfer
+            setField1Value("");
+            enqueueSnackbar("Transaction Successful", { variant: "success" });
+          })
+          .catch((e) => {
+            setLoading(false);
+            enqueueSnackbar("Transaction Failed (" + e.message + ")", {
+              variant: "error",
+              autoHideDuration: 10000,
+            });
+          });
+      }
+    }
+    worker.postMessage({
+      id,
+      n: N.toString(),
+      t: T.toNumber(),
+      blockHash,
+      blockNumber,
+      knownQtyIn,
+      knownQtyOut,
+      origin,
+      path
+    })
   };
 
   // The lambdas within these useEffects will be called when a particular dependency is updated. These dependencies
@@ -386,20 +446,31 @@ function CoinSwapper(props) {
               </Grid>
             </Grid>
 
-
-
             <hr className={classes.hr} />
 
-            <LoadingButton
-              loading={loading}
-              valid={isButtonEnabled()}
-              success={false}
-              fail={false}
-              onClick={swap}
-            >
-              <LoopIcon />
-              Swap
-            </LoadingButton>
+            {loading ?
+              <div className={classes.fullWidth}>
+                <ProgressBar
+                  completed={progressBarValue}
+                  labelSize={'12px'}
+                  transitionDuration={'0.2s'}
+                  labelAlignment={'right'}
+                  labelColor={'#ffffff'}
+                  styles={{ width: '90%' }}
+                />
+
+              </div>
+              : <LoadingButton
+                loading={loading}
+                valid={isButtonEnabled()}
+                success={false}
+                fail={false}
+                onClick={swap}
+              >
+                <LoopIcon />
+                Swap
+              </LoadingButton>
+            }
           </Grid>
         </Paper>
       </Container>
