@@ -7,16 +7,18 @@ import { Route } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 import Liquidity from "./Liquidity/Liquidity";
 import { createTheme, ThemeProvider } from "@material-ui/core";
+import { deepPurple, pink } from "@material-ui/core/colors";
 
 const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: "#EDEDED",
-      contrastText: "#ff0000",
+      main: pink[500],
+      contrastText: "#e8e8e8",
     },
     secondary: {
-      main: "#9e9e9e",
-      contrastText: "#ffffff",
+      main: deepPurple[500],
+      contrastText: "#e8e8e8",
     },
   },
 });
@@ -24,8 +26,8 @@ const theme = createTheme({
 const App = () => {
   return (
     <div className="App">
-      <SnackbarProvider maxSnack={3}>
-        <ThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
+        <SnackbarProvider maxSnack={3}>
           <Web3Provider
             render={(network) => (
               <div>
@@ -40,8 +42,8 @@ const App = () => {
               </div>
             )}
           ></Web3Provider>
-        </ThemeProvider>
-      </SnackbarProvider>
+        </SnackbarProvider>
+      </ThemeProvider>
     </div>
   );
 };

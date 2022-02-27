@@ -26,6 +26,7 @@ export default function LoadingButton(props) {
       <Button
         variant="contained"
         color="primary"
+        disableElevation
         fullWidth
         disabled={loading || !valid}
         type="submit"

@@ -9,7 +9,6 @@ import {
 } from "@material-ui/core";
 import SwapVerticalCircleIcon from "@material-ui/icons/SwapVerticalCircle";
 import { useSnackbar } from "notistack";
-import LoopIcon from "@material-ui/icons/Loop";
 import {
   getAmountOut,
   getBalanceAndSymbol,
@@ -59,7 +58,7 @@ const styles = (theme) => ({
   },
   footer: {
     width: "100%",
-    marginTop: 20
+    marginTop: 40
   },
 });
 
@@ -386,9 +385,6 @@ function CoinSwapper(props) {
       {/* Coin Swapper */}
       <Container maxWidth="xs">
         <Paper className={classes.paperContainer}>
-          <Typography variant="h5" className={classes.title}>
-            Swap Coins
-          </Typography>
 
           <Grid container direction="column" alignItems="center" spacing={2}>
             <Grid item xs={12} className={classes.fullWidth}>
@@ -469,8 +465,7 @@ function CoinSwapper(props) {
                 fail={false}
                 onClick={swap}
               >
-                <LoopIcon />
-                Swap
+                🦥&nbsp;Swap
               </LoadingButton>
             }
           </Grid>
