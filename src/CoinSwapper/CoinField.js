@@ -1,5 +1,5 @@
 import React from "react";
-import { Fab, Grid, InputBase, makeStyles } from "@material-ui/core";
+import { Fab, Grid, InputBase, makeStyles, Button } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import PropTypes from "prop-types";
 import * as COLORS from "@material-ui/core/colors";
@@ -162,15 +162,16 @@ export default function CoinField(props) {
       >
         {/* Button */}
         <Grid item xs={3}>
-          <Fab
+          <Button
             size="small"
-            variant="extended"
+            variant="contained"
+            disableElevation
             onClick={onClick}
             className={classes.fab}
           >
             {symbol}
             <ExpandMoreIcon />
-          </Fab>
+          </Button>
         </Grid>
 
         {/* Text Field */}

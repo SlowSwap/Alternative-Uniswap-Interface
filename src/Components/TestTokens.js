@@ -1,11 +1,33 @@
 import React, { useState, useEffect } from 'react'
-import { Button, CircularProgress } from "@material-ui/core";
+import { Button, Container, Paper, Typography, makeStyles, } from "@material-ui/core";
 import { getDecimals } from '../ethereumFunctions';
 import { Contract, ethers } from 'ethers';
+import { grey } from '@material-ui/core/colors';
 
 const TestERC20 = require("../build/TestERC20.json");
 
+const styles = (theme) => ({
+    paperContainer: {
+        borderRadius: theme.spacing(2),
+        padding: theme.spacing(1),
+        paddingBottom: theme.spacing(3),
+        background: grey[400],
+        width: 396
+    },
+    centered: {
+        width: "100%",
+        display: 'flex',
+        gap: 8,
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        flexWrap: 'wrap'
+    },
+
+});
+const useStyles = makeStyles(styles);
+
 export default function TestToken(props) {
+    const classes = useStyles();
     const [loading, setLoading] = useState(false)
     const [coins, setCoins] = useState([])
 
@@ -30,19 +52,27 @@ export default function TestToken(props) {
         setLoading(false)
     }
     return (
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-            {coins.map(coin =>
-                <Button
-                    key={coin.address}
-                    variant="contained"
-                    color="secondary"
-                    disabled={loading}
-                    onClick={() => mintTestToken(coin.address)}
-                >
-                    Mint+Approve:&nbsp;{coin.abbr}
-                </Button>
-            )}
-            {loading && <CircularProgress size={24} />}
+        <div>
+            <Container maxWidth="xs">
+                <Paper className={classes.paperContainer}>
+                    <div className={classes.centered}>
+                        <Typography variant="h6" style={{ marginBottom: 20 }}>Mint + approve test tokens</Typography>
+                    </div>
+                    <div className={classes.centered}>
+                        {coins.map(coin =>
+                            <Button
+                                key={coin.address}
+                                variant="contained"
+                                color="secondary"
+                                disabled={loading}
+                                onClick={() => mintTestToken(coin.address)}
+                            >
+                                {coin.abbr}
+                            </Button>
+                        )}
+                    </div>
+                </Paper>
+            </Container>
         </div>
     );
 }
