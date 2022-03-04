@@ -22,14 +22,15 @@ import LoadingButton from "../Components/LoadingButton";
 import WrongNetwork from "../Components/wrongNetwork";
 import { Contract, ethers } from "ethers";
 import ProgressBar from '@ramonak/react-progress-bar'
-import crypto from 'crypto'
 import TestToken from "../Components/TestTokens";
+import { Network } from "network";
 
-const worker = new Worker("../workers/vdf.worker.js", { type: "module" });
+// Webpack 5
+const worker = new Worker(new URL("../workers/vdf.worker.ts", import.meta.url));
 
 const ERC20 = require("../build/ERC20.json");
 
-const styles = (theme) => ({
+const styles: any = (theme: any): any => ({
   paperContainer: {
     borderRadius: theme.spacing(2),
     padding: theme.spacing(1),
@@ -62,9 +63,19 @@ const styles = (theme) => ({
   },
 });
 
-const useStyles = makeStyles(styles);
+const useStyles = makeStyles<{ [key: string]: any }>(styles);
 
-function CoinSwapper(props) {
+type Coin = {
+  address: string
+  symbol: string
+  balance: string
+}
+
+interface CoinSwapProps {
+  network: Network
+}
+
+function CoinSwap(props: CoinSwapProps) {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -75,23 +86,23 @@ function CoinSwapper(props) {
   const [progressBarValue, setProgressBarValue] = useState(0)
 
   // Stores data about their respective coin
-  const [coin1, setCoin1] = React.useState({
-    address: undefined,
-    symbol: undefined,
-    balance: undefined,
+  const [coin1, setCoin1] = React.useState<Coin>({
+    address: "",
+    symbol: "",
+    balance: "",
   });
-  const [coin2, setCoin2] = React.useState({
-    address: undefined,
-    symbol: undefined,
-    balance: undefined,
+  const [coin2, setCoin2] = React.useState<Coin>({
+    address: "",
+    symbol: "",
+    balance: "",
   });
 
   // Stores the current reserves in the liquidity pool between coin1 and coin2
-  const [reserves, setReserves] = React.useState(["0.0", "0.0"]);
+  const [reserves, setReserves] = React.useState<[string, string, string]>(['0', '0', '0']);
 
   // Stores the current value of their respective text box
-  const [field1Value, setField1Value] = React.useState("");
-  const [field2Value, setField2Value] = React.useState("");
+  const [field1Value, setField1Value] = React.useState<string>("");
+  const [field2Value, setField2Value] = React.useState<string>("");
 
   // Controls the loading button
   const [loading, setLoading] = React.useState(false);
@@ -102,25 +113,26 @@ function CoinSwapper(props) {
     setCoin1(coin2);
     setCoin2(coin1);
     setField1Value(field2Value);
-    setReserves(reserves.reverse());
+    let reversed: [string, string, string] = [reserves[2], reserves[1], reserves[0]]
+    setReserves(reversed);
   };
 
   // These functions take an HTML event, pull the data out and puts it into a state variable.
   const handleChange = {
-    field1: (e) => {
+    field1: (e: any) => {
       setField1Value(e.target.value);
     },
   };
 
   // Turns the account's balance into something nice and readable
-  const formatBalance = (balance, symbol) => {
+  const formatBalance = (balance: string, symbol: string) => {
     if (balance && symbol)
       return parseFloat(balance).toPrecision(8) + " " + symbol;
     else return "0.0";
   };
 
   // Turns the coin's reserves into something nice and readable
-  const formatReserve = (reserve, symbol) => {
+  const formatReserve = (reserve: string, symbol: string) => {
     if (reserve && symbol) return reserve + " " + symbol;
     else return "0.0";
   };
@@ -137,12 +149,12 @@ function CoinSwapper(props) {
       !isNaN(parsedInput1) &&
       !isNaN(parsedInput2) &&
       0 < parsedInput1 &&
-      parsedInput1 <= coin1.balance
+      parsedInput1 <= Number(coin1.balance)
     );
   };
 
   // Called when the dialog window for coin1 exits
-  const onToken1Selected = (address) => {
+  const onToken1Selected = (address: string) => {
     // Close the dialog window
     setDialog1Open(false);
 
@@ -164,7 +176,7 @@ function CoinSwapper(props) {
   };
 
   // Called when the dialog window for coin2 exits
-  const onToken2Selected = (address) => {
+  const onToken2Selected = (address: string) => {
     // Close the dialog window
     setDialog2Open(false);
 
@@ -184,6 +196,14 @@ function CoinSwapper(props) {
       });
     }
   };
+
+  function uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = Math.random() * 16 | 0, v = c === 'x' ? r : ((r & 0x3) | 0x8);
+      return v.toString(16);
+    });
+  }
+
 
   // Calls the swapTokens Ethereum function to make the swap, then resets nessicary state variables
   const swap = async () => {
@@ -211,7 +231,9 @@ function CoinSwapper(props) {
     ])
 
 
-    const id = crypto.randomBytes(32).toString('hex')
+
+    const id = uuid();
+    // const id = crypto.randomBytes(32).toString('hex')
 
     const blockNumber = await props.network.provider.getBlockNumber()
     console.log('blockNumber', blockNumber)
@@ -334,6 +356,7 @@ function CoinSwapper(props) {
           props.network.coins
         ).then(
           (data) => {
+            console.log('data: ', data)
             setCoin1({
               ...coin1,
               balance: data.balance,
@@ -370,7 +393,7 @@ function CoinSwapper(props) {
         open={dialog1Open}
         onClose={onToken1Selected}
         coins={props.network.coins}
-        props={props.network.signer}
+        signer={props.network.signer}
       />
       <CoinDialog
         open={dialog2Open}
@@ -407,6 +430,7 @@ function CoinSwapper(props) {
                 value={field2Value}
                 onClick={() => setDialog2Open(true)}
                 symbol={coin2.symbol !== undefined ? coin2.symbol : "Select"}
+                onChange={() => { }}
               />
             </Grid>
 
@@ -454,7 +478,6 @@ function CoinSwapper(props) {
                   transitionDuration={'0.2s'}
                   labelAlignment={'right'}
                   labelColor={'#ffffff'}
-                  styles={{ width: '90%' }}
                 />
 
               </div>
@@ -485,4 +508,4 @@ function CoinSwapper(props) {
   );
 }
 
-export default CoinSwapper;
+export default CoinSwap;

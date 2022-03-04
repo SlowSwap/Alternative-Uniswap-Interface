@@ -7,16 +7,24 @@ export default function SwitchButton(props) {
   const changeStyles = (K) => {
     if (K === true) {
       let add_button = document.getElementById("add-button");
-      add_button.style.backgroundColor = "#ff0000";
+      if (add_button) {
+        add_button.style.backgroundColor = "#ff0000";
+      }
 
       let remove_button = document.getElementById("remove-button");
-      remove_button.style.backgroundColor = "#9e9e9e";
+      if (remove_button) {
+        remove_button.style.backgroundColor = "#9e9e9e";
+      }
     } else {
       let remove_button = document.getElementById("remove-button");
-      remove_button.style.backgroundColor = "#ff0000";
+      if (remove_button) {
+        remove_button.style.backgroundColor = "#ff0000";
+      }
 
       let add_button = document.getElementById("add-button");
-      add_button.style.backgroundColor = "#9e9e9e";
+      if (add_button) {
+        add_button.style.backgroundColor = "#9e9e9e";
+      }
     }
   };
 
@@ -26,7 +34,6 @@ export default function SwitchButton(props) {
         <Button
           id="add-button"
           color="primary"
-          text="white"
           onClick={() => {
             setDeploy(true);
             changeStyles(true);
@@ -38,7 +45,6 @@ export default function SwitchButton(props) {
         <Button
           id="remove-button"
           color="secondary"
-          text="white"
           onClick={() => {
             setDeploy(false);
             changeStyles(false);

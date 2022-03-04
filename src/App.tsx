@@ -1,8 +1,8 @@
 import React from "react";
 import "./App.css";
 import Web3Provider from "./network";
-import NarBar from "./NavBar/NavBar";
-import CoinSwapper from "./CoinSwapper/CoinSwapper";
+import NavBar from "./NavBar/NavBar";
+import CoinSwap from "./CoinSwap/CoinSwap";
 import { Route } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 import Liquidity from "./Liquidity/Liquidity";
@@ -11,7 +11,7 @@ import { deepPurple, pink } from "@material-ui/core/colors";
 
 const theme = createTheme({
   palette: {
-    mode: 'dark',
+    // mode: 'dark',
     primary: {
       main: pink[500],
       contrastText: "#e8e8e8",
@@ -31,9 +31,9 @@ const App = () => {
           <Web3Provider
             render={(network) => (
               <div>
-                <NarBar />
+                <NavBar />
                 <Route exact path="/">
-                  <CoinSwapper network={network} />
+                  <CoinSwap network={network} />
                 </Route>
 
                 <Route exact path="/liquidity">

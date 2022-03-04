@@ -14,7 +14,7 @@ export function getSigner(provider) {
   return provider.getSigner();
 }
 
-export async function getNetwork(provider) {
+export async function getNetwork(provider: ethers.providers.Web3Provider) {
   const network = await provider.getNetwork();
   return network.chainId;
 }
@@ -24,7 +24,7 @@ export function getRouter(address, signer) {
 }
 
 export async function checkNetwork(provider) {
-  const chainId = getNetwork(provider);
+  const chainId = await getNetwork(provider);
   if (chains.networks.includes(chainId)) {
     return true
   }
@@ -50,15 +50,15 @@ export async function getAccount() {
 //This function checks if a ERC20 token exists for a given address
 //    `address` - The Ethereum address to be checked
 //    `signer` - The current signer
-export function doesTokenExist(address, signer) {
+export function doesTokenExist(address, signer): Contract {
   try {
     return new Contract(address, ERC20.abi, signer);
   } catch (err) {
-    return false;
+    throw err
   }
 }
 
-export async function getDecimals(token) {
+export async function getDecimals(token): Promise<number> {
   const decimals = await token.decimals().then((result) => {
     return result;
   }).catch((error) => {
@@ -81,7 +81,7 @@ export async function getBalanceAndSymbol(
   signer,
   weth_address,
   coins
-) {
+): Promise<{ balance: string, symbol: string }> {
   try {
     if (address === weth_address) {
       const balanceRaw = await provider.getBalance(accountAddress);
@@ -97,14 +97,15 @@ export async function getBalanceAndSymbol(
       const symbol = await token.symbol();
 
       return {
-        balance: balanceRaw * 10 ** (-tokenDecimals),
+        balance: String(balanceRaw * 10 ** (-tokenDecimals)),
         symbol: symbol,
       };
     }
   } catch (error) {
     console.log('The getBalanceAndSymbol function had an error!');
     console.log(error)
-    return false;
+    throw error
+    // return false;
   }
 }
 
@@ -202,8 +203,9 @@ export async function getAmountOut(
     const amount_out = values_out[1] * 10 ** (-token2Decimals);
     console.log('amount out: ', amount_out)
     return Number(amount_out);
-  } catch {
-    return false;
+  } catch (error) {
+    // return false;
+    throw error
   }
 }
 
@@ -213,7 +215,12 @@ export async function getAmountOut(
 //    `address1` - An Ethereum address of the token to trade from (either a ERC20 token or AUT)
 //    `address2` - An Ethereum address of the token to trade to (either a ERC20 token or AUT)
 //    `pair` - The pair contract for the two tokens
-export async function fetchReserves(address1, address2, pair, signer) {
+export async function fetchReserves(
+  address1,
+  address2,
+  pair,
+  signer
+): Promise<[number, number]> {
   try {
 
     // Get decimals for each coin
@@ -256,7 +263,7 @@ export async function getReserves(
   factory,
   signer,
   accountAddress
-) {
+): Promise<[string, string, string]> {
   try {
     const pairAddress = await factory.getPair(address1, address2);
     const pair = new Contract(pairAddress, PAIR.abi, signer);
@@ -265,9 +272,8 @@ export async function getReserves(
 
       const reservesRaw = await fetchReserves(address1, address2, pair, signer);
       const liquidityTokens_BN = await pair.balanceOf(accountAddress);
-      const liquidityTokens = Number(
-        ethers.utils.formatEther(liquidityTokens_BN)
-      );
+      const liquidityTokens = ethers.utils.formatEther(liquidityTokens_BN)
+
 
       return [
         reservesRaw[0].toPrecision(6),
@@ -276,11 +282,11 @@ export async function getReserves(
       ];
     } else {
       console.log("no reserves yet");
-      return [0, 0, 0];
+      return ['0', '0', '0'];
     }
   } catch (err) {
     console.log("error!");
     console.log(err);
-    return [0, 0, 0];
+    return ['0', '0', '0'];
   }
 }

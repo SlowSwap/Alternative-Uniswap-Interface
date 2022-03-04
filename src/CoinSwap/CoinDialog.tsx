@@ -14,10 +14,10 @@ import MuiDialogActions from "@material-ui/core/DialogActions";
 import CloseIcon from "@material-ui/icons/Close";
 import CoinButton from "./CoinButton";
 import { doesTokenExist } from "../ethereumFunctions";
-import PropTypes from "prop-types";
 import * as COLORS from "@material-ui/core/colors";
+import { CoinDef } from "constants/coins";
 
-const styles = (theme) => ({
+const styles: any = (theme: any): any => ({
   dialogContainer: {
     borderRadius: theme.spacing(2),
   },
@@ -36,8 +36,8 @@ const styles = (theme) => ({
     paddingBottom: theme.spacing(2),
   },
   coinList: {
-    height: "300px",
-    overflowY: "scroll",
+    height: 300,
+    overflowY: "scroll" as any,
   },
   coinContainer: {
     paddingLeft: theme.spacing(0.5),
@@ -48,11 +48,15 @@ const styles = (theme) => ({
   },
 });
 
-const useStyles = makeStyles(styles);
 
 // This is a modified version of MaterialUI's DialogTitle component, I've added a close button in the top right corner
-const DialogTitle = withStyles(styles)((props) => {
-  const { children, classes, onClose, ...other } = props;
+const DialogTitle = (props: {
+  onClose: () => void,
+  children: any
+
+}) => {
+  const classes = makeStyles(styles)()
+  const { children, onClose, ...other } = props;
   return (
     <MuiDialogTitle
       disableTypography
@@ -76,7 +80,7 @@ const DialogTitle = withStyles(styles)((props) => {
       </Grid>
     </MuiDialogTitle>
   );
-});
+};
 
 // This is a modified version of MaterialUI's DialogActions component, the color has been changed by modifying the CSS
 const DialogActions = withStyles((theme) => ({
@@ -87,20 +91,20 @@ const DialogActions = withStyles((theme) => ({
   },
 }))(MuiDialogActions);
 
-CoinDialog.propTypes = {
-  onClose: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired,
-  coins: PropTypes.array.isRequired,
-};
 
-export default function CoinDialog(props) {
+export default function CoinDialog(props: {
+  onClose: (val: string) => any,
+  open: boolean,
+  coins: CoinDef[],
+  signer: any
+}) {
   // The CoinDialog component will display a dialog window on top of the page, allowing a user to select a coin
   // from a list (list can be found in 'src/constants/coins.js') or enter an address into a search field. Any entered
   // addresses will first be validated to make sure they exist.
   // When the dialog closes, it will call the `onClose` prop with 1 argument which will either be undefined (if the
   // user closes the dialog without selecting anything), or will be a string containing the address of a coin.
 
-  const classes = useStyles();
+  const classes = makeStyles(styles)()
   const { onClose, open, coins, signer } = props;
 
   const [address, setAddress] = React.useState("");
@@ -117,7 +121,7 @@ export default function CoinDialog(props) {
   };
 
   // Resets any fields in the dialog (in case it's opened in the future) and calls the `onClose` prop
-  const exit = (value) => {
+  const exit = (value: string) => {
     setError("");
     setAddress("");
     onClose(value);
@@ -126,12 +130,12 @@ export default function CoinDialog(props) {
   return (
     <Dialog
       open={open}
-      onClose={() => exit(undefined)}
+      onClose={() => exit("")}
       fullWidth
       maxWidth="sm"
       classes={{ paper: classes.dialogContainer }}
     >
-      <DialogTitle onClose={() => exit(undefined)}>Select Coin</DialogTitle>
+      <DialogTitle onClose={() => exit("")}>Select Coin</DialogTitle>
 
       <hr className={classes.hr} />
 

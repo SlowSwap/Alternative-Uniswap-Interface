@@ -1,6 +1,5 @@
 import React from "react";
 import { ButtonBase, Grid, makeStyles, Typography } from "@material-ui/core";
-import PropTypes from "prop-types";
 import * as COLORS from "@material-ui/core/colors";
 
 const useStyles = makeStyles((theme) => ({
@@ -17,13 +16,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-CoinButton.propTypes = {
-  coinName: PropTypes.string.isRequired,
-  coinAbbr: PropTypes.string.isRequired,
-  onClick: PropTypes.func.isRequired,
-};
-
-export default function CoinButton(props) {
+export default function CoinButton(props: {
+  coinName: string,
+  coinAbbr: string,
+  onClick: (e: any) => void
+}) {
   const { coinName, coinAbbr, onClick } = props;
   const classes = useStyles();
 

@@ -7,7 +7,7 @@ import {
 import { MenuItems } from "./MenuItems";
 import { pink } from "@material-ui/core/colors";
 
-const styles = (theme) => ({
+const styles: any = (theme) => ({
   fullWidth: {
     width: "100%",
   },
@@ -42,6 +42,11 @@ export default function NavBar() {
       <div className={classes.title}>
         <Typography className={classes.title} variant="h1">SlowSwap</Typography>
       </div>
+
+      {/* Test to see if Tailwind styles work: */}
+      {/* <h1 className="text-3xl font-bold underline">
+        Hello world!
+      </h1> */}
 
       <div >
         <ul className={classes.navBar}>

@@ -1,8 +1,14 @@
 import * as chains from './chains';
 
+export type CoinDef = {
+  name: string
+  abbr: string
+  address: string
+}
+
 // If you add coins for a new network, make sure Weth address (for the router you are using) is the first entry
 
-const AUTONITYCoins = [
+const AUTONITYCoins: CoinDef[] = [
   {
     name: "Auton",
     abbr: "AUT",
@@ -35,7 +41,7 @@ const AUTONITYCoins = [
   }
 ]
 
-const DEVNETCoins = [
+const DEVNETCoins: CoinDef[] = [
   {
     name: "Auton",
     abbr: "AUT",
@@ -58,7 +64,7 @@ const DEVNETCoins = [
   }
 ]
 
-const PARASTATECoins = [
+const PARASTATECoins: CoinDef[] = [
   {
     name: "Ether",
     abbr: "ETH",
@@ -87,7 +93,7 @@ const PARASTATECoins = [
   }
 ]
 
-const GANACHECoins = [
+const GANACHECoins: CoinDef[] = [
   {
     name: "Ether",
     abbr: "ETH",
@@ -116,7 +122,7 @@ const GANACHECoins = [
   }
 ]
 
-const MAINNETCoins = [
+const MAINNETCoins: CoinDef[] = [
   {
     name: "Ether",
     abbr: "ETH",
@@ -134,7 +140,7 @@ const MAINNETCoins = [
   },
 ]
 
-const ROPSTENCoins = [
+const ROPSTENCoins: CoinDef[] = [
   {
     name: "Ether",
     abbr: "ETH",
@@ -169,7 +175,7 @@ const ROPSTENCoins = [
 
 ]
 
-const KOVANCoins = [
+const KOVANCoins: CoinDef[] = [
   {
     name: "Ether",
     abbr: "ETH",
@@ -187,7 +193,7 @@ const KOVANCoins = [
   },
 ]
 
-const RINKEBYCoins = [
+const RINKEBYCoins: CoinDef[] = [
   {
     name: "Ether",
     abbr: "ETH",
@@ -205,7 +211,7 @@ const RINKEBYCoins = [
   },
 ]
 
-const GÖRLICoins = [
+const GÖRLICoins: CoinDef[] = [
   {
     name: "Ether",
     abbr: "ETH",
@@ -222,7 +228,7 @@ const GÖRLICoins = [
     address: "0x509ee0d083ddf8ac028f2a56731412edd63223b9",
   },
 ]
-const POLYGONCoins = [
+const POLYGONCoins: CoinDef[] = [
   {
     name: "Matic Token",
     abbr: "MATIC",
@@ -260,7 +266,7 @@ const POLYGONCoins = [
   },
 ]
 
-const COINS = new Map();
+const COINS = new Map<number, CoinDef[]>();
 COINS.set(chains.ChainId.MAINNET, MAINNETCoins);
 COINS.set(chains.ChainId.ROPSTEN, ROPSTENCoins);
 COINS.set(chains.ChainId.RINKEBY, RINKEBYCoins);

@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Container,
-  Grid,
   makeStyles,
   Paper,
   Typography,
@@ -11,7 +10,7 @@ import SwitchButton from "./SwitchButton";
 import LiquidityDeployer from "./LiquidityDeployer";
 import LiquidityRemover from "./RemoveLiquidity";
 
-const styles = (theme) => ({
+const styles: any = (theme) => ({
   paperContainer: {
     borderRadius: theme.spacing(2),
     padding: theme.spacing(1),
@@ -38,9 +37,9 @@ function Liquidity(props) {
 
   const deploy_or_remove = (deploy) => {
     if (deploy === true) {
-      return <LiquidityDeployer network={props.network}/>;
+      return <LiquidityDeployer network={props.network} />;
     }
-    return <LiquidityRemover network={props.network}/>;
+    return <LiquidityRemover network={props.network} />;
   };
 
   return (
@@ -55,18 +54,6 @@ function Liquidity(props) {
         </Paper>
       </Container>
 
-      <Grid
-        container
-        className={classes.footer}
-        direction="row"
-        justifyContent="center"
-        alignItems="flex-end"
-      >
-        <p>
-          Alternative Uniswap Interface | Get AUT for use in the bakerloo testnet{" "}
-          <a href="https://faucet.bakerloo.autonity.network/">here</a>
-        </p>
-      </Grid>
     </div>
   );
 }

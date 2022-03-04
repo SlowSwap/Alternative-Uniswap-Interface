@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { ethers } from "ethers";
 import ConnectWalletPage from "./Components/connectWalletPage";
 import {
@@ -8,21 +8,34 @@ import {
   getNetwork,
   getWeth,
 } from "./ethereumFunctions";
-import COINS from "./constants/coins";
+import COINS, { CoinDef } from "./constants/coins";
 import * as chains from "./constants/chains";
 
-const Web3Provider = (props) => {
+export interface Network {
+  provider: ethers.providers.Web3Provider
+  signer: any
+  account: any
+  coins: CoinDef[]
+  chainID: number
+  router: any
+  factory: any
+  weth: any
+}
+
+const Web3Provider = (props: any) => {
   const [isConnected, setConnected] = useState(true);
-  let network = Object.create({})
-  network.provider = useRef(null);
-  network.signer = useRef(null);
-  network.account = useRef(null);
-  network.coins = [];
-  network.chainID = useRef(null);
-  network.router = useRef(null);
-  network.factory = useRef(null);
-  network.weth = useRef(null);
-  const backgroundListener = useRef(null);
+  let network: Network = {
+    provider: useRef(null) as any,
+    signer: useRef(null) as any,
+    account: useRef(null) as any,
+    coins: [],
+    chainID: useRef(null) as any,
+    router: useRef(null) as any,
+    factory: useRef(null) as any,
+    weth: useRef(null) as any,
+  }
+
+  const backgroundListener = useRef<NodeJS.Timer>();
   async function setupConnection() {
     try {
       console.log('lets go!');
@@ -42,15 +55,15 @@ const Web3Provider = (props) => {
             network.signer
           );
           // Get default coins for network
-          network.coins = COINS.get(chainId);
+          network.coins = COINS.get(chainId) || []
           // Get Weth address from router
-          await network.router.WETH().then((wethAddress) => {
+          await network.router.WETH().then((wethAddress: string) => {
             network.weth = getWeth(wethAddress, network.signer);
             // Set the value of the weth address in the default coins array
             network.coins[0].address = wethAddress;
           });
           // Get the factory address from the router
-          await network.router.factory().then((factory_address) => {
+          await network.router.factory().then((factory_address: string) => {
             network.factory = getFactory(
               factory_address,
               network.signer
@@ -100,9 +113,13 @@ const Web3Provider = (props) => {
       if (backgroundListener.current != null) {
         clearInterval(backgroundListener.current);
       }
-      const listener = createListener();
+      const listener = await createListener();
       backgroundListener.current = listener;
-      return () => clearInterval(backgroundListener.current);
+      return function cleanup() {
+        if (backgroundListener.current) {
+          clearInterval(backgroundListener.current)
+        }
+      }
     }
     asyncWork()
     // eslint-disable-next-line
@@ -111,7 +128,7 @@ const Web3Provider = (props) => {
   const renderNotConnected = () => {
     console.log("Rendering");
     return (
-      <div className="App">
+      <div className="App" >
         <div>
           <ConnectWalletPage />
         </div>
@@ -122,7 +139,8 @@ const Web3Provider = (props) => {
   return (
     <>
       {!isConnected && renderNotConnected()}
-      {isConnected && <div> {props.render(network)}</div>}
+      {
+        isConnected && <div>{props.render(network)} </div>}
     </>
   );
 };

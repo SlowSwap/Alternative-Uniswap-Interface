@@ -9,12 +9,12 @@ import {
 
 import { addLiquidity, quoteAddLiquidity } from "./LiquidityFunctions";
 
-import CoinField from "../CoinSwapper/CoinField";
-import CoinDialog from "../CoinSwapper/CoinDialog";
+import CoinField from "../CoinSwap/CoinField";
+import CoinDialog from "../CoinSwap/CoinDialog";
 import LoadingButton from "../Components/LoadingButton";
 import WrongNetwork from "../Components/wrongNetwork";
 
-const styles = (theme) => ({
+const styles: any = (theme) => ({
   paperContainer: {
     borderRadius: theme.spacing(2),
     padding: theme.spacing(2),
@@ -62,14 +62,14 @@ function LiquidityDeployer(props) {
 
   // Stores data about their respective coin
   const [coin1, setCoin1] = React.useState({
-    address: undefined,
-    symbol: undefined,
-    balance: undefined,
+    address: "",
+    symbol: "",
+    balance: "",
   });
   const [coin2, setCoin2] = React.useState({
-    address: undefined,
-    symbol: undefined,
-    balance: undefined,
+    address: "",
+    symbol: "",
+    balance: "",
   });
 
   // Stores the current reserves in the liquidity pool between coin1 and coin2
@@ -137,8 +137,8 @@ function LiquidityDeployer(props) {
       0 < parsedInput1 &&
       !isNaN(parsedInput2) &&
       0 < parsedInput2 &&
-      parsedInput1 <= coin1.balance &&
-      parsedInput2 <= coin2.balance
+      parsedInput1 <= Number(coin1.balance) &&
+      parsedInput2 <= Number(coin2.balance)
     );
   };
 

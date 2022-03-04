@@ -3,10 +3,11 @@ import { Button, Container, Paper, Typography, makeStyles, } from "@material-ui/
 import { getDecimals } from '../ethereumFunctions';
 import { Contract, ethers } from 'ethers';
 import { grey } from '@material-ui/core/colors';
+import { CoinDef } from 'constants/coins';
 
 const TestERC20 = require("../build/TestERC20.json");
 
-const styles = (theme) => ({
+const styles: any = (theme) => ({
     paperContainer: {
         borderRadius: theme.spacing(2),
         padding: theme.spacing(1),
@@ -29,7 +30,7 @@ const useStyles = makeStyles(styles);
 export default function TestToken(props) {
     const classes = useStyles();
     const [loading, setLoading] = useState(false)
-    const [coins, setCoins] = useState([])
+    const [coins, setCoins] = useState<CoinDef[]>([])
 
     const { network } = props;
     useEffect(() => {

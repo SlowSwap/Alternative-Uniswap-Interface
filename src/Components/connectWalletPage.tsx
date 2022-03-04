@@ -1,13 +1,12 @@
 import React from "react";
 import {
   Container,
-  Grid,
   makeStyles,
   Paper,
   Typography,
 } from "@material-ui/core";
 
-const styles = (theme) => ({
+const styles: any = (theme) => ({
   paperContainer: {
     borderRadius: theme.spacing(2),
     padding: theme.spacing(1),
@@ -58,7 +57,6 @@ function ConnectWalletPage() {
           <Typography
             variant="h6"
             className={classes.title}
-            color="common.white"
           >
             Please connect an Ethereum wallet to your browser to use the
             application
@@ -66,18 +64,6 @@ function ConnectWalletPage() {
         </Paper>
       </Container>
 
-      <Grid
-        container
-        className={classes.footer}
-        direction="row"
-        justifyContent="center"
-        alignItems="flex-end"
-      >
-        <p>
-          Alternative Uniswap Interface | Get AUT for use in the bakerloo testnet{" "}
-          <a href="https://faucet.bakerloo.autonity.network/">here</a>
-        </p>
-      </Grid>
     </div>
   );
 }

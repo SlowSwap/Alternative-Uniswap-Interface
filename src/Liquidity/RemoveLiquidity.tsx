@@ -10,12 +10,12 @@ import { removeLiquidity, quoteRemoveLiquidity } from "./LiquidityFunctions";
 import {
   RemoveLiquidityField1,
   RemoveLiquidityField2,
-} from "../CoinSwapper/CoinField";
-import CoinDialog from "../CoinSwapper/CoinDialog";
+} from "../CoinSwap/CoinField";
+import CoinDialog from "../CoinSwap/CoinDialog";
 import LoadingButton from "../Components/LoadingButton";
 import WrongNetwork from "../Components/wrongNetwork";
 
-const styles = (theme) => ({
+const styles: any = (theme) => ({
   paperContainer: {
     borderRadius: theme.spacing(2),
     padding: theme.spacing(2),
@@ -64,14 +64,14 @@ function LiquidityRemover(props) {
 
   // Stores data about their respective coin
   const [coin1, setCoin1] = React.useState({
-    address: undefined,
-    symbol: undefined,
-    balance: undefined,
+    address: "",
+    symbol: "",
+    balance: "",
   });
   const [coin2, setCoin2] = React.useState({
-    address: undefined,
-    symbol: undefined,
-    balance: undefined,
+    address: "",
+    symbol: "",
+    balance: "",
   });
 
   // Stores the current reserves in the liquidity pool between coin1 and coin2
@@ -127,7 +127,7 @@ function LiquidityRemover(props) {
       coin2.address &&
       !isNaN(parsedInput) &&
       0 < parsedInput &&
-      parsedInput <= liquidityTokens
+      parsedInput <= Number(liquidityTokens)
     );
   };
 
@@ -356,6 +356,8 @@ function LiquidityRemover(props) {
             activeField={true}
             onClick={() => setDialog2Open(true)}
             symbol={coin2.symbol !== undefined ? coin2.symbol : "Select"}
+            value={""}
+            onChange={() => { }}
           />
         </Grid>
       </Grid>

@@ -1,10 +1,9 @@
 import React from "react";
-import { Fab, Grid, InputBase, makeStyles, Button } from "@material-ui/core";
+import { Fab, Grid, InputBase, makeStyles, Button, } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import PropTypes from "prop-types";
 import * as COLORS from "@material-ui/core/colors";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles<{ [key: string]: any, }>((theme: any): any => ({
   container: {
     padding: theme.spacing(1),
     minHeight: "80px",
@@ -45,15 +44,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-CoinField.propTypes = {
-  onClick: PropTypes.func.isRequired,
-  symbol: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
-  onChange: PropTypes.func,
-  activeField: PropTypes.bool.isRequired,
-};
 
-export function RemoveLiquidityField1(props) {
+export function RemoveLiquidityField1(props: {
+  onClick: () => any
+  symbol: string,
+  value: string,
+  onChange: (e: any) => any
+  activeField: boolean
+}) {
   // This component is used to selecting a coin and entering a value, the props are explained below:
   //      onClick - (string) => void - Called when the button is clicked
   //      symbol - string - The text displayed on the button
@@ -103,7 +101,13 @@ export function RemoveLiquidityField1(props) {
   );
 }
 
-export function RemoveLiquidityField2(props) {
+export function RemoveLiquidityField2(props: {
+  onClick: () => any
+  symbol: string,
+  value: string,
+  onChange: (e: any) => any
+  activeField: boolean
+}) {
   // This component is used to selecting a coin and entering a value, the props are explained below:
   //      onClick - (string) => void - Called when the button is clicked
   //      symbol - string - The text displayed on the button
@@ -140,7 +144,13 @@ export function RemoveLiquidityField2(props) {
   );
 }
 
-export default function CoinField(props) {
+export default function CoinField(props: {
+  onClick: () => any
+  symbol: string,
+  value: string,
+  onChange: (e: any) => any
+  activeField: boolean
+}) {
   // This component is used to selecting a token and entering a value, the props are explained below:
   //      onClick - (string) => void - Called when the button is clicked
   //      symbol - string - The text displayed on the button
