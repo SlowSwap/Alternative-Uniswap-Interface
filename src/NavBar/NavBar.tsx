@@ -1,59 +1,26 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import {
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
 import { MenuItems } from "./MenuItems";
-import { pink } from "@material-ui/core/colors";
 
-const styles: any = (theme) => ({
-  fullWidth: {
-    width: "100%",
-  },
-  title: {
-    textAlign: "center",
-    padding: theme.spacing(0.5),
-    marginBottom: theme.spacing(0.5),
-    color: pink[500],
-  },
-  navBar: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 60,
-    width: '100%',
-    listStyle: 'none',
-    fontSize: 26,
-    marginBottom: 40,
-  },
-  navLink: {
-    textDecoration: 'none',
-    color: '#ffffff'
-  }
-});
-
-const useStyles = makeStyles(styles);
 export default function NavBar() {
-  const classes = useStyles();
+  const logoUrl = process.env.REACT_APP_SITE_URL + '/logo.svg'
 
   return (
     <nav>
-      <div className={classes.title}>
-        <Typography className={classes.title} variant="h1">SlowSwap</Typography>
-      </div>
-
-      {/* Test to see if Tailwind styles work: */}
-      {/* <h1 className="text-3xl font-bold underline">
-        Hello world!
-      </h1> */}
-
-      <div >
-        <ul className={classes.navBar}>
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <img
+          className="mt-2 mx-auto h-36 w-auto bg-opacity-40 bg-slate-50 rounded-full"
+          src={logoUrl}
+          alt="SlowSwap Sloth face"
+        />
+        <h2 className="mt-2 text-center text-5xl font-bold text-white">
+          SlowSwap
+        </h2>
+        <ul className="mt-2 mb-3 text-center text-xl text-gray-600 list-none flex items-center justify-center gap-8">
           {MenuItems.map((item, index) => {
             return (
               <li key={index}>
-                <Link className={classes.navLink} to={item.url}>
+                <Link className="font-medium text-white" to={item.url}>
                   {item.title}
                 </Link>
               </li>
