@@ -1,95 +1,9 @@
-import React from "react";
-import {
-  Button,
-  Dialog,
-  Grid,
-  IconButton,
-  makeStyles,
-  TextField,
-  Typography,
-  withStyles,
-} from "@material-ui/core";
-import MuiDialogTitle from "@material-ui/core/DialogTitle";
-import MuiDialogActions from "@material-ui/core/DialogActions";
-import CloseIcon from "@material-ui/icons/Close";
-import CoinButton from "./CoinButton";
+import React, { Fragment } from "react";
+import { TextField } from "@material-ui/core";
 import { doesTokenExist } from "../ethereumFunctions";
-import * as COLORS from "@material-ui/core/colors";
 import { CoinDef } from "constants/coins";
-
-const styles: any = (theme: any): any => ({
-  dialogContainer: {
-    borderRadius: theme.spacing(2),
-  },
-  titleSection: {
-    padding: theme.spacing(2),
-  },
-  titleText: {
-    alignSelf: "center",
-  },
-  hr: {
-    margin: 0,
-  },
-  address: {
-    paddingLeft: theme.spacing(2.5),
-    paddingRight: theme.spacing(2.5),
-    paddingBottom: theme.spacing(2),
-  },
-  coinList: {
-    height: 300,
-    overflowY: "scroll" as any,
-  },
-  coinContainer: {
-    paddingLeft: theme.spacing(0.5),
-    paddingRight: theme.spacing(0.5),
-    paddingTop: theme.spacing(2),
-    marginTop: theme.spacing(2),
-    overflow: "hidden",
-  },
-});
-
-
-// This is a modified version of MaterialUI's DialogTitle component, I've added a close button in the top right corner
-const DialogTitle = (props: {
-  onClose: () => void,
-  children: any
-
-}) => {
-  const classes = makeStyles(styles)()
-  const { children, onClose, ...other } = props;
-  return (
-    <MuiDialogTitle
-      disableTypography
-      className={classes.titleSection}
-      {...other}
-    >
-      <Grid
-        container
-        direction="row"
-        justifyContent="space-between"
-        alignContent="center"
-      >
-        <Typography variant="h6" className={classes.titleText}>
-          {children}
-        </Typography>
-        {onClose ? (
-          <IconButton aria-label="close" onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
-        ) : null}
-      </Grid>
-    </MuiDialogTitle>
-  );
-};
-
-// This is a modified version of MaterialUI's DialogActions component, the color has been changed by modifying the CSS
-const DialogActions = withStyles((theme) => ({
-  root: {
-    margin: 0,
-    padding: theme.spacing(1),
-    backgroundColor: COLORS.grey[100],
-  },
-}))(MuiDialogActions);
+import { Dialog, Transition } from '@headlessui/react'
+import { QuestionMarkCircleIcon } from '@heroicons/react/solid'
 
 
 export default function CoinDialog(props: {
@@ -104,7 +18,6 @@ export default function CoinDialog(props: {
   // When the dialog closes, it will call the `onClose` prop with 1 argument which will either be undefined (if the
   // user closes the dialog without selecting anything), or will be a string containing the address of a coin.
 
-  const classes = makeStyles(styles)()
   const { onClose, open, coins, signer } = props;
 
   const [address, setAddress] = React.useState("");
@@ -128,56 +41,95 @@ export default function CoinDialog(props: {
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={() => exit("")}
-      fullWidth
-      maxWidth="sm"
-      classes={{ paper: classes.dialogContainer }}
-    >
-      <DialogTitle onClose={() => exit("")}>Select Coin</DialogTitle>
+    <Transition.Root show={open} as={Fragment}>
+      <Dialog as="div" className="fixed z-10 inset-0 overflow-y-auto" onClose={() => exit("")}>
+        <div className="flex items-end justify-center min-h-screen px-4 pb-20 text-center sm:block sm:p-0">
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          </Transition.Child>
 
-      <hr className={classes.hr} />
+          {/* This element is to trick the browser into centering the modal contents. */}
+          <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+            &#8203;
+          </span>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            enterTo="opacity-100 translate-y-0 sm:scale-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          >
+            <div className="relative inline-block align-bottom bg-white rounded-lg px-4 pt-4 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+              <div>
+                <div className="mt-3 text-center sm:mt-5">
+                  <Dialog.Title as="h3" className="text-lg leading-6 font-medium text-gray-900">
+                    Select asset
+                  </Dialog.Title>
 
-      <div className={classes.coinContainer}>
-        <Grid container direction="column" spacing={1} alignContent="center">
-          <TextField
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            variant="outlined"
-            placeholder="Paste Address"
-            error={error !== ""}
-            helperText={error}
-            fullWidth
-            className={classes.address}
-          />
 
-          <hr className={classes.hr} />
+                  <div className="mt-2">
+                    <ul role="list" className="divide-y divide-gray-200">
+                      {coins.map((coin) => (
+                        <li
+                          key={coin.address}
+                          className="py-2 flex odd:bg-white even:bg-slate-50 cursor-pointer"
+                          onClick={() => exit(coin.address)}
+                        >
+                          {coin.iconUrl ?
 
-          <Grid item className={classes.coinList}>
-            <Grid container direction="column">
-              {/* Maps all of the tokens in the constants file to buttons */}
-              {coins.map((coin, index) => (
-                <Grid item key={index} xs={12}>
-                  <CoinButton
-                    coinName={coin.name}
-                    coinAbbr={coin.abbr}
-                    onClick={() => exit(coin.address)}
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          </Grid>
-        </Grid>
-      </div>
+                            <img className="h-10 w-10 rounded-full" src={coin.iconUrl || ""} alt="" />
+                            : <QuestionMarkCircleIcon className="h-10 w-10 text-gray-400" aria-hidden="true" />
+                          }
+                          <div className="ml-3 text-left">
+                            <p className="text-sm font-medium text-gray-900">{coin.name}</p>
+                            <p className="text-sm text-gray-500">{coin.abbr}</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
 
-      <hr className={classes.hr} />
 
-      <DialogActions>
-        <Button autoFocus onClick={submit} color="primary">
-          Enter
-        </Button>
-      </DialogActions>
-    </Dialog>
+              <div className="flex justify-center mt-4 mb-2">
+                <div>or, enter a token address:</div>
+              </div>
+              <div className="mt-2 sm:mt-3">
+
+                <TextField
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  variant="outlined"
+                  placeholder="Paste Address"
+                  error={error !== ""}
+                  helperText={error}
+                  fullWidth
+                />
+              </div>
+              <div className="mt-2 sm:mt-3">
+                <button
+                  type="button"
+                  className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:text-sm"
+                  onClick={submit}
+                >
+                  Use Address
+                </button>
+              </div>
+            </div>
+          </Transition.Child>
+        </div>
+      </Dialog>
+    </Transition.Root>
   );
 }

@@ -369,6 +369,7 @@ function LiquidityDeployer(props) {
             onClick={() => setDialog1Open(true)}
             onChange={handleChange.field1}
             symbol={coin1.symbol !== undefined ? coin1.symbol : "Select"}
+            balance={coin1.balance}
           />
         </Grid>
 
@@ -379,6 +380,7 @@ function LiquidityDeployer(props) {
             onClick={() => setDialog2Open(true)}
             onChange={handleChange.field2}
             symbol={coin2.symbol !== undefined ? coin2.symbol : "Select"}
+            balance={coin2.balance}
           />
         </Grid>
       </Grid>

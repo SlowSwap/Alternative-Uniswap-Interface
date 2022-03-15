@@ -1,36 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Container, Paper, Typography, makeStyles, } from "@material-ui/core";
 import { getDecimals } from '../ethereumFunctions';
 import { Contract, ethers } from 'ethers';
-import { grey } from '@material-ui/core/colors';
 import { CoinDef } from 'constants/coins';
 
 const TestERC20 = require("../build/TestERC20.json");
 
-const styles: any = (theme) => ({
-    paperContainer: {
-        borderRadius: theme.spacing(2),
-        padding: theme.spacing(1),
-        paddingBottom: theme.spacing(3),
-        background: grey[400],
-        width: 396
-    },
-    centered: {
-        width: "100%",
-        display: 'flex',
-        gap: 8,
-        justifyContent: 'space-evenly',
-        alignItems: 'center',
-        flexWrap: 'wrap'
-    },
-
-});
-const useStyles = makeStyles(styles);
-
 export default function TestToken(props) {
-    const classes = useStyles();
     const [loading, setLoading] = useState(false)
     const [coins, setCoins] = useState<CoinDef[]>([])
+    const [showMintButtons, setShowMintButtons] = useState<boolean>(false)
 
     const { network } = props;
     useEffect(() => {
@@ -38,7 +16,7 @@ export default function TestToken(props) {
         const testCoins = coins.filter(coin => coin.abbr.includes("TEST"))
         setCoins(testCoins)
 
-    }, [network.coins])
+    }, [network.coins, network.chainID])
 
     const mintTestToken = async (address) => {
         setLoading(true)
@@ -54,26 +32,34 @@ export default function TestToken(props) {
     }
     return (
         <div>
-            <Container maxWidth="xs">
-                <Paper className={classes.paperContainer}>
-                    <div className={classes.centered}>
-                        <Typography variant="h6" style={{ marginBottom: 20 }}>Mint + approve test tokens</Typography>
+            {showMintButtons ? (
+                <div className="my-8 sm:mx-auto sm:w-full sm:max-w-md">
+                    <div className="bg-slate-50 bg-opacity-50 py-8 px-4 shadow sm:rounded-lg sm:px-10">
+                        <div className="flex justify-center items-center mb-4 text-gray-700">
+                            <div className="text-xl">Mint + approve test tokens</div>
+                        </div>
+                        <div className="flex justify-center items-center gap-4">
+                            {coins.map(coin =>
+                                <button
+                                    className={"inline-flex items-center px-3 py-2 bg-purple-500 hover:bg-purple-600 rounded-md shadow-sm text-bold text-white " + (loading ? " disabled" : "")}
+                                    key={coin.address}
+                                    onClick={() => mintTestToken(coin.address)}
+                                >
+                                    <div>{coin.abbr}</div>
+                                </button>
+                            )}
+                        </div>
                     </div>
-                    <div className={classes.centered}>
-                        {coins.map(coin =>
-                            <Button
-                                key={coin.address}
-                                variant="contained"
-                                color="secondary"
-                                disabled={loading}
-                                onClick={() => mintTestToken(coin.address)}
-                            >
-                                {coin.abbr}
-                            </Button>
-                        )}
-                    </div>
-                </Paper>
-            </Container>
+                </div>
+
+            ) : (
+                <div className="flex justify-center mt-8">
+                    <button
+                        className="bg-purple-300 hover:bg-purple-400 bg-opacity-40 rounded-lg text-gray-300 py-2 px-4"
+                        onClick={() => setShowMintButtons(true)}
+                    >mint test tokens</button>
+                </div>
+            )}
         </div>
     );
 }

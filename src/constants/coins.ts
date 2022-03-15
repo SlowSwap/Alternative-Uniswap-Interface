@@ -4,6 +4,7 @@ export type CoinDef = {
   name: string
   abbr: string
   address: string
+  iconUrl?: string
 }
 
 // If you add coins for a new network, make sure Weth address (for the router you are using) is the first entry
@@ -145,32 +146,38 @@ const ROPSTENCoins: CoinDef[] = [
     name: "Ether",
     abbr: "ETH",
     address: "", // Weth address is fetched from the router
+    iconUrl: "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
   },
   {
-    name: "Dai",
+    name: "Dai Stablecoin",
     abbr: "DAI",
     address: "0xad6d458402f60fd3bd25163575031acdce07538d",
+    iconUrl: "https://assets.coingecko.com/coins/images/9956/small/4943.png",
   },
   {
-    name: "Tether USD",
-    abbr: "USDT",
-    address: "0x6ee856ae55b6e1a249f04cd3b947141bc146273c",
+    name: "Circle USD",
+    abbr: "USDC",
+    address: "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
+    iconUrl: "https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png"
   },
   {
-    name: "Token 0",
+    name: "Test Token 0",
     abbr: "TEST0",
     address: "0xc34375f07a56fb8887600E4cd04d8C245a4D6bc2",
+    iconUrl: "https://assets.coingecko.com/coins/images/9026/small/F.png",
   },
   {
-    name: "Token 1",
+    name: "Test Token 1",
     abbr: "TEST1",
     address: "0xB79C345353eCc0edC1B60cf474CE552D7B6F34F2",
+    iconUrl: "https://assets.coingecko.com/coins/images/8284/small/luna1557227471663.png",
   },
 
   {
-    name: "Token 2",
+    name: "Test Token 2",
     abbr: "TEST2",
     address: "0x9d664E019a5Fb2C9bc8db7191D25d2B0E9C8608C",
+    iconUrl: "https://assets.coingecko.com/coins/images/13442/small/steth_logo.png",
   },
 
 ]
@@ -233,6 +240,7 @@ const POLYGONCoins: CoinDef[] = [
     name: "Matic Token",
     abbr: "MATIC",
     address: "", // Weth address is fetched from the router
+    iconUrl: "https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png",
   },
   // {
   //   name: "Matic",
@@ -240,29 +248,34 @@ const POLYGONCoins: CoinDef[] = [
   //   address: "0x0000000000000000000000000000000000001010",
   // },
   {
-    name: "Dai",
+    name: "Dai Stablecoin",
     abbr: "DAI",
     address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+    iconUrl: "https://assets.coingecko.com/coins/images/9956/small/4943.png",
   },
   {
     name: "Spork DAO (POS)",
     abbr: "SPORK",
     address: "0x9CA6a77C8B38159fd2dA9Bd25bc3E259C33F5E39",
+    iconUrl: "https://assets.coingecko.com/coins/images/23358/small/sporkdao.PNG",
   },
   {
-    name: "Token 0",
+    name: "Test Token 0",
     abbr: "TEST0",
     address: "0xc50C5CCD4a3aeaE1371666366079151A20f18e9c",
+    iconUrl: "",
   },
   {
-    name: "Token 1",
+    name: "Test Token 1",
     abbr: "TEST1",
     address: "0xb9d8E4e9aA4537E1e6057d8f844Fa3a2900d486A",
+    iconUrl: "",
   },
   {
-    name: "Token 2",
+    name: "Test Token 2",
     abbr: "TEST2",
     address: "0xD7cF6D417a760B40794e5F4d0fb0C9f1Ca07Df6d",
+    iconUrl: "",
   },
 ]
 

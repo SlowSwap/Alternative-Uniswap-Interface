@@ -1,13 +1,4 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Grid,
-  IconButton,
-  makeStyles,
-  Paper,
-  Typography,
-} from "@material-ui/core";
-import SwapVerticalCircleIcon from "@material-ui/icons/SwapVerticalCircle";
 import { useSnackbar } from "notistack";
 import {
   getAmountOut,
@@ -16,56 +7,20 @@ import {
   getReserves,
   getDecimals,
 } from "../ethereumFunctions";
-import CoinField from "./CoinField";
+import CoinField, { PoolReserve } from "./CoinField";
 import CoinDialog from "./CoinDialog";
-import LoadingButton from "../Components/LoadingButton";
 import WrongNetwork from "../Components/wrongNetwork";
 import { Contract, ethers } from "ethers";
-import ProgressBar from '@ramonak/react-progress-bar'
-import TestToken from "../Components/TestTokens";
 import { Network } from "network";
+import { SwitchVerticalIcon } from '@heroicons/react/solid'
 
 // Webpack 5
 const worker = new Worker(new URL("../workers/vdf.worker.ts", import.meta.url));
 
 const ERC20 = require("../build/ERC20.json");
 
-const styles: any = (theme: any): any => ({
-  paperContainer: {
-    borderRadius: theme.spacing(2),
-    padding: theme.spacing(1),
-    paddingBottom: theme.spacing(3),
-  },
-  switchButton: {
-    zIndex: 1,
-    margin: "-16px",
-    padding: theme.spacing(0.5),
-  },
-  fullWidth: {
-    width: "100%",
-  },
-  title: {
-    textAlign: "center",
-    padding: theme.spacing(0.5),
-    marginBottom: theme.spacing(1),
-  },
-  hr: {
-    width: "100%",
-  },
-  balance: {
-    padding: theme.spacing(1),
-    overflow: "wrap",
-    textAlign: "center",
-  },
-  footer: {
-    width: "100%",
-    marginTop: 40
-  },
-});
 
-const useStyles = makeStyles<{ [key: string]: any }>(styles);
-
-type Coin = {
+export type Coin = {
   address: string
   symbol: string
   balance: string
@@ -76,7 +31,6 @@ interface CoinSwapProps {
 }
 
 function CoinSwap(props: CoinSwapProps) {
-  const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
 
   // Stores a record of whether their respective dialog window is open
@@ -124,18 +78,7 @@ function CoinSwap(props: CoinSwapProps) {
     },
   };
 
-  // Turns the account's balance into something nice and readable
-  const formatBalance = (balance: string, symbol: string) => {
-    if (balance && symbol)
-      return parseFloat(balance).toPrecision(8) + " " + symbol;
-    else return "0.0";
-  };
 
-  // Turns the coin's reserves into something nice and readable
-  const formatReserve = (reserve: string, symbol: string) => {
-    if (reserve && symbol) return reserve + " " + symbol;
-    else return "0.0";
-  };
 
   // Determines whether the button should be enabled or not
   const isButtonEnabled = () => {
@@ -143,14 +86,13 @@ function CoinSwap(props: CoinSwapProps) {
     // If both coins have been selected, and a valid float has been entered which is less than the user's balance, then return true
     const parsedInput1 = parseFloat(field1Value);
     const parsedInput2 = parseFloat(field2Value);
-    return (
-      coin1.address &&
+    const res = (coin1.address &&
       coin2.address &&
       !isNaN(parsedInput1) &&
       !isNaN(parsedInput2) &&
       0 < parsedInput1 &&
-      parsedInput1 <= Number(coin1.balance)
-    );
+      parsedInput1 <= Number(coin1.balance))
+    return !!res
   };
 
   // Called when the dialog window for coin1 exits
@@ -406,104 +348,85 @@ function CoinSwap(props: CoinSwapProps) {
       />
 
       {/* Coin Swapper */}
-      <Container maxWidth="xs">
-        <Paper className={classes.paperContainer}>
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-slate-50 bg-opacity-50 py-8 px-4 shadow sm:rounded-lg sm:px-10">
 
-          <Grid container direction="column" alignItems="center" spacing={2}>
-            <Grid item xs={12} className={classes.fullWidth}>
-              <CoinField
-                activeField={true}
-                value={field1Value}
-                onClick={() => setDialog1Open(true)}
-                onChange={handleChange.field1}
-                symbol={coin1.symbol !== undefined ? coin1.symbol : "Select"}
-              />
-            </Grid>
+          <div className="mb-3">
+            <CoinField
+              activeField={true}
+              value={field1Value}
+              onClick={() => setDialog1Open(true)}
+              onChange={handleChange.field1}
+              symbol={coin1.symbol !== undefined ? coin1.symbol : "Select"}
+              balance={coin1.balance}
+            />
 
-            <IconButton onClick={switchFields} className={classes.switchButton}>
-              <SwapVerticalCircleIcon fontSize="medium" />
-            </IconButton>
 
-            <Grid item xs={12} className={classes.fullWidth}>
-              <CoinField
-                activeField={false}
-                value={field2Value}
-                onClick={() => setDialog2Open(true)}
-                symbol={coin2.symbol !== undefined ? coin2.symbol : "Select"}
-                onChange={() => { }}
-              />
-            </Grid>
-
-            <hr className={classes.hr} />
-
-            {/* Balance Display */}
-            <Typography variant="h6">Your Balances</Typography>
-            <Grid container direction="row" justifyContent="space-between">
-              <Grid item xs={6}>
-                <Typography variant="body1" className={classes.balance}>
-                  {formatBalance(coin1.balance, coin1.symbol)}
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="body1" className={classes.balance}>
-                  {formatBalance(coin2.balance, coin2.symbol)}
-                </Typography>
-              </Grid>
-            </Grid>
-
-            <hr className={classes.hr} />
-
-            {/* Reserves Display */}
-            <Typography variant="h6">Reserves</Typography>
-            <Grid container direction="row" justifyContent="space-between">
-              <Grid item xs={6}>
-                <Typography variant="body1" className={classes.balance}>
-                  {formatReserve(reserves[0], coin1.symbol)}
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="body1" className={classes.balance}>
-                  {formatReserve(reserves[1], coin2.symbol)}
-                </Typography>
-              </Grid>
-            </Grid>
-
-            <hr className={classes.hr} />
-
-            {loading ?
-              <div className={classes.fullWidth}>
-                <ProgressBar
-                  completed={progressBarValue}
-                  labelSize={'12px'}
-                  transitionDuration={'0.2s'}
-                  labelAlignment={'right'}
-                  labelColor={'#ffffff'}
-                />
-
+            <div className="w-full -my-[18px]">
+              <div className="flex justify-center ">
+                <button
+                  className="z-10 relative bg-purple-500 hover:bg-purple-600 rounded-full shadow-md p-2"
+                  onClick={switchFields}
+                >
+                  <SwitchVerticalIcon className="h-5 w-5 text-white" aria-hidden="true" />
+                </button>
               </div>
-              : <LoadingButton
-                loading={loading}
-                valid={isButtonEnabled()}
-                success={false}
-                fail={false}
-                onClick={swap}
-              >
-                🦥&nbsp;Swap
-              </LoadingButton>
-            }
-          </Grid>
-        </Paper>
-      </Container>
 
-      <Grid
-        container
-        className={classes.footer}
-        direction="row"
-        justifyContent="center"
-        alignItems="flex-end"
-      >
-        <TestToken network={props.network} />
-      </Grid>
+            </div>
+
+            <CoinField
+              activeField={false}
+              value={field2Value}
+              onClick={() => setDialog2Open(true)}
+              symbol={coin2.symbol !== undefined ? coin2.symbol : "Select"}
+              onChange={() => { }}
+              balance={coin2.balance}
+            />
+          </div>
+
+
+
+          {/* Reserves Display */}
+          {coin1.symbol && reserves[0] && coin2.symbol && reserves[1] &&
+            <div className="mb-3">
+              <PoolReserve
+                coin1={coin1}
+                coin1Reserve={reserves[0]}
+                coin2={coin2}
+                coin2Reserve={reserves[1]}
+              />
+            </div>}
+
+
+
+
+
+          <div className="mb-3">
+
+            <div className="w-full flex items-center">
+              <div className="text-6xl -mx-3">🥪</div>
+              <div className="w-full flex-grow bg-slate-50 bg-opacity-50 h-14 rounded-full mx-2 z-10 ">
+                <div className="transition-all ease-out duration-1000 bg-purple-500 h-14 rounded-full flex flex-row-reverse" style={{ width: progressBarValue + "%" }}>
+                  <div className="text-6xl -mt-1 -mr-10">🦥</div>
+                </div>
+              </div>
+              <div className="text-6xl -mx-3">🥬</div>
+            </div>
+          </div>
+
+          <>
+            <button
+              type="submit"
+              className={"w-full flex justify-center py-2 px-4 rounded-lg shadow-sm text-lg font-medium text-white bg-purple-500 hover:bg-purple-700" + (isButtonEnabled() && !loading ? "" : " opacity-50 cursor-not-allowed")}
+              onClick={swap}
+              disabled={!isButtonEnabled() || loading}
+            >
+              {loading ? progressBarValue < 100 ? "Calculating VDF..." : "Sending Swap..." : "calculate VDF & Swap"}
+            </button>
+
+          </>
+        </div>
+      </div>
     </div>
   );
 }

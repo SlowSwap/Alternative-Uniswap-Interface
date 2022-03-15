@@ -348,6 +348,7 @@ function LiquidityRemover(props) {
             onClick={() => setDialog1Open(true)}
             onChange={handleChange.field1}
             symbol={coin1.symbol !== undefined ? coin1.symbol : "Select"}
+            balance={coin1.balance}
           />
         </Grid>
 
@@ -358,6 +359,7 @@ function LiquidityRemover(props) {
             symbol={coin2.symbol !== undefined ? coin2.symbol : "Select"}
             value={""}
             onChange={() => { }}
+            balance={coin2.balance}
           />
         </Grid>
       </Grid>

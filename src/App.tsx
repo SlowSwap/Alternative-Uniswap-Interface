@@ -6,44 +6,32 @@ import CoinSwap from "./CoinSwap/CoinSwap";
 import { Route } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 import Liquidity from "./Liquidity/Liquidity";
-import { createTheme, ThemeProvider } from "@material-ui/core";
-import { deepPurple, pink } from "@material-ui/core/colors";
+import TestToken from "Components/TestTokens";
 
-const theme = createTheme({
-  palette: {
-    // mode: 'dark',
-    primary: {
-      main: pink[500],
-      contrastText: "#e8e8e8",
-    },
-    secondary: {
-      main: deepPurple[500],
-      contrastText: "#e8e8e8",
-    },
-  },
-});
 
 const App = () => {
   return (
-    <div className="App">
-      <ThemeProvider theme={theme}>
-        <SnackbarProvider maxSnack={3}>
-          <Web3Provider
-            render={(network) => (
-              <div>
-                <NavBar />
-                <Route exact path="/">
-                  <CoinSwap network={network} />
-                </Route>
+    <div className="min-h-full flex flex-col justify-center sm:px-6 lg:px-8">
+      <SnackbarProvider maxSnack={3}>
+        <Web3Provider
+          render={(network) => (
+            <div>
+              <NavBar />
+              <Route exact path="/">
+                <CoinSwap network={network} />
+              </Route>
 
-                <Route exact path="/liquidity">
-                  <Liquidity network={network} />
-                </Route>
-              </div>
-            )}
-          ></Web3Provider>
-        </SnackbarProvider>
-      </ThemeProvider>
+              <Route exact path="/liquidity">
+                <Liquidity network={network} />
+              </Route>
+
+              {/* {network.chainID && network.chainID !== 1 && network.chainID !== 137 && ( */}
+              <TestToken network={network} />
+              {/* )} */}
+            </div>
+          )}
+        />
+      </SnackbarProvider>
     </div>
   );
 };
